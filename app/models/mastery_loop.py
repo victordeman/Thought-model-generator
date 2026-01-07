@@ -1,30 +1,36 @@
-from typing import Optional, Dict, Any
-from app.chains.mastery_chain import MasteryLoopChain
-from app.services.llm_service import get_llm
-from langchain.memory import ConversationBufferMemory
+from typing import Optional
+from app.graphs.mastery_graph import mastery_graph
 from app.models.thought_profile import ThoughtProfile
 
 class OOPMasteryLoop:
-    def __init__(self, memory: Optional[ConversationBufferMemory] = None):
-        llm = get_llm()
-        self.chain = MasteryLoopChain(llm, memory)
+    def __init__(self):
+        self.graph = mastery_graph
 
     async def generate_profile(self, code: str, domain: str = "OOP", learner_id: Optional[str] = None) -> ThoughtProfile:
-        raw_profile = await self.chain.run(code)
+        initial_state = {
+            "code": code,
+            "inversion_risks": [],
+            "principles_mastery": {},
+            "recommendations": [],
+            "confidence_score": 0.0,
+            "chat_history": [],
+            "loop_count": 0
+        }
+        final_state = await self.graph.ainvoke(initial_state)
         profile = ThoughtProfile(
             learner_id=learner_id,
             domain=domain,
-            **raw_profile
+            principles_mastery=final_state["principles_mastery"],
+            inversion_risks=final_state["inversion_risks"],
+            recommendations=final_state["recommendations"],
+            confidence_score=final_state["confidence_score"]
         )
-        # In prod: save to DB here
         return profile
 
     async def reflect(self, previous_profile: ThoughtProfile, notes: str) -> ThoughtProfile:
-        # Append reflection to memory
-        self.chain.memory.save_context(
-            {"input": f"Reflection notes: {notes}"},
-            {"output": "Acknowledged – incorporating into next analysis."}
-        )
-        # Re-run on last code (in real app, store code history)
-        new_raw = await self.chain.run(previous_profile.get("last_code", "class Placeholder: pass"))
-        return ThoughtProfile(**previous_profile.dict(), **new_raw)
+        # Inject notes into history and re-invoke
+        state_with_notes = previous_profile.dict()
+        state_with_notes["chat_history"] = state_with_notes.get("chat_history", []) + [notes]
+        state_with_notes["loop_count"] = 0
+        final_state = await self.graph.ainvoke(state_with_notes)
+        return ThoughtProfile(**final_state)
