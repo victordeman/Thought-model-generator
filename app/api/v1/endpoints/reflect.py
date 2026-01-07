@@ -16,7 +16,7 @@ async def reflect_loop(
     _=Depends(api_key_auth)
 ):
     try:
-        loop = OOPMasteryLoop()  # In prod: load memory from DB for learner_id
+        loop = OOPMasteryLoop()
         updated_profile = await loop.reflect(request.previous_profile, request.reflection_notes)
         return updated_profile
     except Exception as e:
