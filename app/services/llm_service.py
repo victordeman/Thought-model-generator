@@ -1,4 +1,6 @@
 from openai import AsyncOpenAI
+from langchain_openai import ChatOpenAI
+from app.config import settings
 
 class AsyncOpenAIClient:
     def __init__(self, api_key: str):
@@ -12,6 +14,10 @@ class AsyncOpenAIClient:
         )
         return response.choices[0].message.content
 
-def get_llm_client():
-    from app.config import settings
-    return AsyncOpenAIClient(settings.openai_api_key)
+def get_llm():
+    return ChatOpenAI(
+        model="gpt-4o-mini",
+        temperature=0.3,
+        api_key=settings.openai_api_key,
+        max_tokens=1000
+    )
