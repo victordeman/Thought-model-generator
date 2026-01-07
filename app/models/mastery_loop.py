@@ -3,9 +3,9 @@ from app.schemas.profile_schema import ThoughtProfile
 import numpy as np
 
 class OOPMasteryLoop:
-    def __init__(self, llm):
-        self.llm = llm
-
+    def __init__(self, llm=None, memory: Optional[ConversationBufferMemory] = None):
+        self.llm = llm or get_llm()
+        self.chain = MasteryLoopChain(self.llm, memory)
     async def generate_profile(self, code: str, domain: str, learner_id: Optional[str]) -> ThoughtProfile:
         # Step 1: Invert Failure
         failures = await self._invert_failures(code)
