@@ -3,9 +3,9 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import JsonOutputParser, StrOutputParser
-from langchain_openai import ChatOpenAI
 from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
+from langsmith import traceable
 from app.config import settings
 from app.services.llm_service import get_llm
 
@@ -18,6 +18,7 @@ class MasteryState(TypedDict):
     chat_history: Annotated[list[Any], add_messages]
     loop_count: int
 
+@traceable(metadata={"step": "invert", "app": "thought-model-generator"})
 def invert_node(state: MasteryState) -> Dict[str, Any]:
     llm = get_llm()
     invert_prompt = PromptTemplate.from_template(
@@ -27,6 +28,7 @@ def invert_node(state: MasteryState) -> Dict[str, Any]:
     risks = chain.invoke({"code": state["code"]})
     return {"inversion_risks": risks.split("\n")}
 
+@traceable(metadata={"step": "principles", "app": "thought-model-generator"})
 def principles_node(state: MasteryState) -> Dict[str, Any]:
     llm = get_llm()
     principles_prompt = PromptTemplate.from_template(
@@ -37,6 +39,7 @@ def principles_node(state: MasteryState) -> Dict[str, Any]:
     mastery = {k: v['score'] for k, v in raw_mastery.items()}
     return {"principles_mastery": mastery}
 
+@traceable(metadata={"step": "rebuild", "app": "thought-model-generator"})
 def rebuild_node(state: MasteryState) -> Dict[str, Any]:
     llm = get_llm()
     # RAG setup
@@ -63,6 +66,7 @@ def rebuild_node(state: MasteryState) -> Dict[str, Any]:
         "confidence_score": output["confidence_score"]
     }
 
+@traceable(metadata={"step": "reflect", "app": "thought-model-generator"})
 def reflect_node(state: MasteryState) -> Dict[str, Any]:
     llm = get_llm()
     reflect_prompt = PromptTemplate.from_template(
