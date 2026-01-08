@@ -1,7 +1,10 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    openai_api_key: str
+    openai_api_key: str = ""
+    xai_api_key: str = ""
+    google_api_key: str = ""
+    hf_api_key: str = ""
     database_url: str = "sqlite+aiosqlite:///db.sqlite"
     api_key: str
 
