@@ -1,4 +1,5 @@
 from typing import Optional
+from langsmith import traceable
 from app.graphs.mastery_graph import mastery_graph
 from app.models.thought_profile import ThoughtProfile
 
@@ -6,6 +7,7 @@ class OOPMasteryLoop:
     def __init__(self):
         self.graph = mastery_graph
 
+    @traceable(metadata={"app": "thought-model-generator", "operation": "generate_profile"})
     async def generate_profile(self, code: str, domain: str = "OOP", learner_id: Optional[str] = None) -> ThoughtProfile:
         initial_state = {
             "code": code,
@@ -27,6 +29,7 @@ class OOPMasteryLoop:
         )
         return profile
 
+    @traceable(metadata={"app": "thought-model-generator", "operation": "reflect"})
     async def reflect(self, previous_profile: ThoughtProfile, notes: str) -> ThoughtProfile:
         # Inject notes into history and re-invoke
         state_with_notes = previous_profile.dict()
