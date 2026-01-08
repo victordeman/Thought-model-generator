@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from app.models.thought_profile import ThoughtProfile
 from app.models.mastery_loop import OOPMasteryLoop
 from app.core.dependencies import api_key_auth
@@ -10,6 +10,7 @@ class GenerateRequest(BaseModel):
     code: str
     domain: str = "OOP"
     learner_id: str | None = None
+    model_provider: str = Field("openai", enum=["openai", "xai", "gemini", "huggingface"])
 
 @router.post("/generate", response_model=ThoughtProfile)
 async def generate_model(
@@ -17,7 +18,7 @@ async def generate_model(
     _=Depends(api_key_auth)
 ):
     try:
-        loop = OOPMasteryLoop()
+        loop = OOPMasteryLoop(provider=request.model_provider)
         profile = await loop.generate_profile(request.code, request.domain, request.learner_id)
         return profile
     except Exception as e:
