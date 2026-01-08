@@ -42,5 +42,3 @@ Run offline evals on the Mastery Loop graph:
 - Evaluator: Custom LLM-as-judge for profile correctness.
 
 
-## Tests
-`pytest`
