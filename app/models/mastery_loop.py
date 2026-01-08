@@ -4,8 +4,9 @@ from app.graphs.mastery_graph import mastery_graph
 from app.models.thought_profile import ThoughtProfile
 
 class OOPMasteryLoop:
-    def __init__(self):
+    def __init__(self, provider: str = "openai"):
         self.graph = mastery_graph
+        self.provider = provider  # Store for potential future use
 
     @traceable(metadata={"app": "thought-model-generator", "operation": "generate_profile"})
     async def generate_profile(self, code: str, domain: str = "OOP", learner_id: Optional[str] = None) -> ThoughtProfile:
