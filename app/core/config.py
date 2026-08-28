@@ -1,2 +1,1 @@
-# Already in root config.py, but for modularity
-from ..config import settings
+from config import settings
