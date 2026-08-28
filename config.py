@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     openai_api_key: str = ""
@@ -6,9 +6,8 @@ class Settings(BaseSettings):
     google_api_key: str = ""
     hf_api_key: str = ""
     database_url: str = "sqlite+aiosqlite:///db.sqlite"
-    api_key: str
+    api_key: str = "default_key"
 
-    class Config:
-        env_file = ".env"
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 settings = Settings()

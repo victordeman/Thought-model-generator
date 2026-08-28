@@ -6,7 +6,7 @@ from langchain_core.output_parsers import JsonOutputParser, StrOutputParser
 from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
 from langsmith import traceable
-from app.config import settings
+from app.core.config import settings
 from app.services.llm_service import get_llm
 
 class MasteryState(TypedDict):
